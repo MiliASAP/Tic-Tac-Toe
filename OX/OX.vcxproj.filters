@@ -18,5 +18,13 @@
     <ClCompile Include="OX.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OXFun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="OX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
