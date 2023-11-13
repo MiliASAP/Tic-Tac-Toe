@@ -3,14 +3,16 @@
 #include <cstdlib>
 #include <chrono>
 #include <thread>
+#include <random>
 
 char** MatrixOX( int& size);
 char** PlrsMove(char** matrix, int& size, int& x, int& y);
 void fillwithZeros(char** matrix, int& size);
 void printMatrix(char** matrix, int& size);
 void printBoard(char** matrix);
-char** BotMove(char** matrix, int& size, int& rnd1, int& rnd2,bool& again);
-char** BotMoveAgain(char** matrix, int& size, int& rnd1, int& rnd2, bool& again);
+bool possibleWin(char** matrix, int& size);
+char** BotMove(char** matrix, int& size, int& rnd1, int& rnd2, int& move);
+
 
 
 
@@ -27,26 +29,33 @@ int main()
     char** matrixOX = MatrixOX(size);
     fillwithZeros(matrixOX, size);
     printBoard(matrixOX);
-    while (move<9) {
-        std::cout << "Wybierz rzad: " << std::endl;
-        std::cin >> x;
-        std::cout << "Wybierz kolumne: " << std::endl;
-        std::cin >> y;
-        if (x > 3 || y > 3) {
-            std::cout << "Kordynaty nieprawidlowe" << std::endl;
+    if (possibleWin(matrixOX, size) == true) {
+        std::cout << "Wygrana" << std::endl;
+        break:
+    }
+    else {
+        while (true) {
+            std::cout << "Wybierz rzad: " << std::endl;
+            std::cin >> x;
+            std::cout << "Wybierz kolumne: " << std::endl;
+            std::cin >> y;
+            if (x > 3 || y > 3) {
+                std::cout << "Kordynaty nieprawidlowe" << std::endl;
+            }
+            else {
+                PlrsMove(matrixOX, size, x, y);
+                move++;
+                possibleWin(matrixOX, size);
+
+                BotMove(matrixOX, size, rnd1, rnd2, move);
+                move++;
+                system("cls");
+                possibleWin(matrixOX, size);
+            }
+            printBoard(matrixOX);
         }
-        else {
-            PlrsMove(matrixOX, size, x, y);
-            move++;
-           // printMatrix(matrixOX, size);
-           // std::chrono::milliseconds timespan(3600);
-           // std::this_thread::sleep_for(timespan);
-            BotMove(matrixOX, size,rnd1,rnd2,again);
-            move++;
-          //system("cls");
-        }
-        printBoard(matrixOX);
-    } 
+    }
+    
 }
 
 char** MatrixOX(int& size) {
@@ -77,7 +86,7 @@ char** PlrsMove(char** matrix,int& size,int&x,int&y) {
             if (i == y-1 && j == x-1) {
                 
                 if (matrix[i][j]=='O') {
-                    system("cls");
+                   // system("cls");
                     printBoard(matrix);
                     std::cout << "Zle kordynaty. Podaj nowe: " << std::endl;
                     std::cin >> x;
@@ -110,81 +119,55 @@ void printMatrix(char** matrix,int& size) {
     }std::cout << std::endl;
 }
 
-char** BotMove(char** matrix, int& size,int& rnd1,int& rnd2,bool& again) {
+char** BotMove(char** matrix, int& size,int& rnd1,int& rnd2,int& move) {
         rnd1 = rand() % 3;
         rnd2 = rand() % 3;
         std::cout << rnd1 + 1 << " pierwszy " << rnd2 + 1 << std::endl;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (i == rnd1 && j == rnd2) {
+                if (i == rnd1 && j == rnd2 && move<9) {
                     if (matrix[i][j] == 'X' || matrix[i][j] == 'O') {
-                        std::cout << rnd1 + 1 << " drugi " << rnd2 + 1 << std::endl;
-                        again = true;
-                        BotMove(matrix, size, rnd1, rnd2, again);
+                       int rnd3 = rand() % 3;
+                        int rnd4 = rand() % 3;
+                        if (rnd1 == rnd3 || rnd2 == rnd4) {
+                            rnd3 = rand() % 3;
+                            rnd4 = rand() % 3;
+                            BotMove(matrix, size, rnd3, rnd4, move);
+                        }
+                        else {
+                            BotMove(matrix, size, rnd3, rnd4,move);
+                            std::cout << rnd1 + 1 << " drugi " << rnd2 + 1 << std::endl;
+                        }
                     }
                     else {
                         matrix[i][j] = 'O';
-                        again = false;
                     }
+                }
+                else {
+                    std::cout << "Remis" << std::endl;
                 }
             }
         }
-   
-    return matrix;
+        return matrix;
+    
 }
 
-char** possibleWin(char** matrix,int& size) {
+bool possibleWin(char** matrix,int& size) {
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             if (matrix[0][0]=='X'&& matrix[0][1] == 'X'&& matrix[0][2] == 'X') {
-                std::cout << "Wygrales";
+               return true;
+            }
+            else {
+                return false;
             }
         }
     }
-    return 0;
 }
 
-char** BotMoveAgain(char** matrix, int& size, int& rnd1, int& rnd2, bool& again) {
-    if(again==true){
-    rnd1 = rand() % 3;
-    rnd2 = rand() % 3;
-    std::cout << rnd1 + 1 << " pierwszy " << rnd2 + 1 << std::endl;
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            if (i == rnd1 && j == rnd2) {
-                if (matrix[i][j] == 'X' || matrix[i][j] == 'O') {
-                    std::cout << rnd1 + 1 << " drugi " << rnd2 + 1 << std::endl;
-                    again = true;
-                    BotMove(matrix, size, rnd1, rnd2, again);
-                }
-                else {
-                    matrix[i][j] = 'O';
-                    again = false;
-                }
-            }
-        }
-    }
-}
-    else {
-        std::cout << rnd1 + 1 << " pierwszy " << rnd2 + 1 << std::endl;
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (i == rnd1 && j == rnd2) {
-                    if (matrix[i][j] == 'X' || matrix[i][j] == 'O') {
-                        std::cout << rnd1 + 1 << " drugi " << rnd2 + 1 << std::endl;
-                        again = true;
-                        BotMoveAgain(matrix, size, rnd1, rnd2, again);
-                    }
-                    else {
-                        matrix[i][j] = 'O';
-                        again = false;
-                    }
-                }
-            }
-        }
-    }
-    return matrix;
-}
+
+
+
 
 
 
